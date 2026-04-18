@@ -1,0 +1,13 @@
+# 排除可执行文件和压缩包（保留源文件）
+*.exe
+*.zip
+*.doc
+*.docx
+
+# 排除编译输出
+*.o
+*.obj
+*.out
+
+# GitHub 相关（避免和仓库冲突）
+easygl1der/

@@ -1,0 +1,143 @@
+/**************************************
+   对应教材 2.7.2节，一元多项式求和
+***************************************/
+#include <iostream>       
+using namespace std;
+
+struct Node                                  //定义多项式链表的结点
+{
+	int coef, exp;                          // coef表示系数，exp表示指数
+	Node* next;
+};
+
+class Polynomial
+{
+public:
+	Polynomial();                          //构造函数
+	~Polynomial();                         //析构函数，同单链表析构函数
+	//Polynomial(const Polynomial& B);          //拷贝构造函数 
+	//Polynomial operator + (Polynomial& B);   //重载运算法，多项式相加
+	void add (Polynomial& B);             //多项式相加
+	void Print();                           //打印一元多项式
+private:
+	Node* first;
+};
+
+Polynomial::~Polynomial()
+{
+	Node* q = NULL;
+	while (first != NULL)        //释放单链表的每一个结点的存储空间
+	{
+		q = first;                 //暂存被释放结点
+		first = first->next;         // first指向被释放结点的下一个结点
+		delete q;
+	}
+}
+
+/*
+Polynomial::Polynomial(const Polynomial& B) {
+	first = B.first;
+}
+*/
+
+Polynomial::Polynomial()
+{
+	Node* r = NULL, * s = NULL;
+	int coef, exp;
+	first = new Node;                          //申请头结点
+	r = first; r->next = NULL;             //尾插法建立单链表
+	cout << "请输入系数和指数：";
+	cin >> coef >> exp;                      //输入第一项的系数和指数
+	while (coef != 0 || exp != 0)                          //循环结束的条件是输入系数为0
+	{
+		s = new Node; s->coef = coef; s->exp = exp;
+		r->next = s; r = s;                       //将结点s插入单链表的尾部
+		cout << "请输入系数和指数：";
+		cin >> coef >> exp;
+	}
+	r->next = NULL;
+}
+
+//Polynomial Polynomial :: operator + (Polynomial& B)
+void Polynomial :: add (Polynomial& B)
+{
+	Node* pre = first, * p = pre->next;               //工作指针pre和p初始化
+	Node* qre = B.first, * q = qre->next;             //工作指针qre和q初始化
+	Node* qtemp = NULL;
+	while (p != NULL && q != NULL)
+	{
+		if (p->exp < q->exp) {                     //第1种情况
+			pre = p; p = p->next;
+		}
+		else if (p->exp > q->exp) {                 //第2种情况
+			qtemp = q->next;
+			pre->next = q;                     //将结点q插入到结点p之前
+			q->next = p;
+			q = qtemp;
+			pre = q;
+			qre->next = q;
+		}
+		else {                             //第3种情况
+			p->coef = p->coef + q->coef;
+			if (p->coef == 0) {                //系数相加为0，则删除结点p
+				pre->next = p->next;
+				delete p;
+				p = pre->next;
+			}
+			else {                          //系数不为0
+				pre = p; p = p->next;
+			}
+			qre->next = q->next;             //第3种情况都要删除结点q
+			delete q;
+			q = qre->next;
+		}
+	}
+	if (p == NULL) pre->next = q;          //将结点q链接在第一个单链表的后面
+	B.first->next = NULL;
+	//return *this;
+}
+
+void Polynomial::Print()
+{
+	Node* p = first->next;
+	if (p != NULL) {                            /*输出第一项*/
+		cout << p->coef << "x^" << p->exp;
+		p = p->next;
+		while (p != NULL)
+		{
+			if (p->coef > 0)                           /*输出系数的正号或负号*/
+				cout << " + " << p->coef << "x^" << p->exp;
+			else
+				cout << p->coef << "x^" << p->exp;
+			p = p->next;
+		}
+	}
+	cout << endl;
+}
+
+int main()
+{  /*7 0
+	 12 3
+	 -2 8
+	 5 12
+	 0 0
+	 ------
+	 4 1
+	 6 3
+	 2 8
+	 5 20
+	 7 28
+	 0 0
+	 */
+	Polynomial A;
+	A.Print();
+	Polynomial B;                       //定义多项式A和B
+	B.Print();
+	//Polynomial C = A + B;
+	//A + B;
+	A.add(B);
+	printf("结果是：");
+	//C.Print();                            //输出相加结果
+	A.Print();
+	return 0;
+}
